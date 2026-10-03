@@ -1,0 +1,10 @@
+bin/
+obj/
+publish*/
+validation/
+*.user
+*.suo
+*.pdb
+*.cache
+*.tmp
+*.obj
