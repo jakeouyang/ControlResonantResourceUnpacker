@@ -4,6 +4,12 @@ Windows x64 / .NET 9 WinForms tool for browsing and exporting resources from Con
 
 [中文](#中文) · [English](#english) · [Releases](https://github.com/jakeouyang/ControlResonantResourceUnpacker/releases) · [Bilibili](https://space.bilibili.com/8480063)
 
+## 截图 / Screenshots
+
+![主界面与 MOD 打包 / Main window and MOD packing](Assets/app_mod_en.png)
+
+![TEX 浏览与纹理预览 / TEX browsing and texture preview](Assets/app_tex.png)
+
 ## 中文
 
 这是一个面向 Windows x64 的 Control: Resonant Edition 资源浏览、导出和开发包制作工具。程序启动时不会读取默认目录，请手动选择包含 `data_pack2/pc` 的游戏目录。
