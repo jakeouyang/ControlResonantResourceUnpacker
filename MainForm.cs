@@ -22,7 +22,7 @@ public sealed partial class MainForm : Form
     Label _status, _dirLabel, _packLabel, _searchLabel;
     Panel _header;
     Panel header => _header;
-    TextButton _browseBtn, _exportSelBtn, _exportAllBtn, _langBtn, _bilibiliBtn, _closeBtn;
+    TextButton _browseBtn, _exportSelBtn, _exportAllBtn, _langBtn, _githubBtn, _closeBtn;
     SimpleScrollBar _vbar, _hbar, _packBar;
     Panel _dirUnderline, _searchUnderline;
     ToolTip _pathTip;
@@ -75,11 +75,11 @@ public sealed partial class MainForm : Form
             ForeColor = CfgAccent, Font = new Font("Segoe UI", 17f),
             Location = new Point(60, 18), BackColor = CfgBg,
         };
-        _bilibiliBtn = new TextButton { Text = "bilibili", Font = new Font("Segoe UI", 12f) };
-        _bilibiliBtn.Click += (s, e) =>
+        _githubBtn = new TextButton { Text = "GitHub", Font = new Font("Segoe UI", 12f) };
+        _githubBtn.Click += (s, e) =>
         {
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            { FileName = "https://space.bilibili.com/8480063", UseShellExecute = true }); } catch { }
+            { FileName = "https://github.com/jakeouyang/ControlResonantResourceUnpacker", UseShellExecute = true }); } catch { }
         };
         _langBtn = new TextButton { Text = "中文", Font = new Font("Segoe UI", 12f) };
         _langBtn.Click += (s, e) => { L.En = !L.En; ApplyTexts(); };
@@ -92,7 +92,7 @@ public sealed partial class MainForm : Form
         _closeBtn.Click += (s, e) => Close();
         header.Resize += (s, e) => LayoutHeaderButtons();
         header.Controls.Add(_langBtn);
-        header.Controls.Add(_bilibiliBtn);
+        header.Controls.Add(_githubBtn);
         header.Controls.Add(_closeBtn);
         header.Controls.Add(_maxBtn);
         // drag window by header
@@ -383,7 +383,7 @@ public sealed partial class MainForm : Form
         int w = headerWidth;
         _maxBtn.Location = new Point(w - 104, 20);
         _closeBtn.Location = new Point(w - 58, 20);
-        _bilibiliBtn.Location = new Point(w - 220, 24);
+        _githubBtn.Location = new Point(w - 220, 24);
         _langBtn.Location = new Point(w - 320, 24);
     }
 

@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AssemblyName>RmdblobUnpacker</AssemblyName>
-    <Version>1.3.1</Version>
+    <Version>1.3.2</Version>
     <RootNamespace>RmdblobUnpacker</RootNamespace>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

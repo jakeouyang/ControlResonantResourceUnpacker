@@ -27,5 +27,5 @@ jobs:
           files: |
             publish/RmdblobUnpacker.exe
             README.md
-            RELEASE_NOTES_v1.3.md
+            RELEASE_NOTES_v1.3.2.md
             THIRD-PARTY-NOTICES.txt

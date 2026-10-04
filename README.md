@@ -2,7 +2,7 @@
 
 Windows x64 / .NET 9 WinForms tool for browsing and exporting resources from Control: Resonant Edition archives.
 
-[中文](#中文) · [English](#english) · [Releases](https://github.com/jakeouyang/ControlResonantResourceUnpacker/releases) · [Bilibili](https://space.bilibili.com/8480063)
+[中文](#中文) · [English](#english) · [GitHub](https://github.com/jakeouyang/ControlResonantResourceUnpacker) · [Releases](https://github.com/jakeouyang/ControlResonantResourceUnpacker/releases)
 
 ## 截图 / Screenshots
 
