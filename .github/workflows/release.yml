@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build and publish (for example v1.4.0)
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -14,18 +19,34 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x
+      - name: Validate release version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          [xml]$project = Get-Content RmdblobUnpacker.csproj
+          $expected = 'v' + $project.Project.PropertyGroup.Version
+          if ($env:RELEASE_TAG -ne $expected) { throw "Tag must match project version $expected" }
+      - name: Test UI bundle extraction
+        shell: pwsh
+        run: dotnet run --project Tests/UiBundleChecks.csproj -c Release
       - name: Publish single-file executable
         shell: pwsh
         run: dotnet publish RmdblobUnpacker.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o publish
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          body_path: RELEASE_NOTES_v1.4.0.md
           generate_release_notes: true
+          fail_on_unmatched_files: true
           files: |
             publish/RmdblobUnpacker.exe
             README.md
-            RELEASE_NOTES_v1.3.2.md
+            RELEASE_NOTES_v1.4.0.md
             THIRD-PARTY-NOTICES.txt

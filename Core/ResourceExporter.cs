@@ -16,6 +16,19 @@ public static class ResourceExporter
         Directory.CreateDirectory(Path.GetDirectoryName(dst)!);
         File.WriteAllBytes(dst, data);
         string conversion = raw ? "Unsupported storage; raw chunks only" : "Decoded original";
+        if (!raw && entry.Path.EndsWith(".ui", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                var ui = UiBundleExtractor.Extract(data, dst + ".contents", token);
+                conversion += $"; UI bundle: {ui.Svg} SVG, {ui.Html} HTML, {ui.JavaScript} JavaScript extracted to .contents; " +
+                    $"{ui.ExternalReferences} external references and {ui.OtherEmbedded} other embedded resources skipped";
+            }
+            catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                conversion += "; UI contents not fully extracted: " + ex.Message + "; original UI retained";
+            }
+        }
         if (!raw && TextureDecoder.IsDds(data))
         {
             string dds = dst.EndsWith(".dds", StringComparison.OrdinalIgnoreCase) ? dst : dst + ".dds";

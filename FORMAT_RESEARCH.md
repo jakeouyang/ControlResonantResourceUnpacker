@@ -53,6 +53,16 @@
 - `validation/blender_model_roundtrip.py` 使用 Blender 实际导入、整体缩放、导出 3 个样本，再经 C# 导入验证全部 LOD。`validation/check_model_mod_reference.py` 使用 RMT v0.2.9 独立解包本工具生成的模型 MOD，确认字节及 CRC 与预期一致；原游戏 TOC 未修改。
 - 原有 UI、纹理/字体 MOD 与 BINFBX 导出回归通过。没有进行游戏内加载、碰撞或全量模型测试。不能把受限回写宣传为通用 FBX 转 BINFBX。
 
-## 其他格式限制
+## UI 容器（v1.4.0）
+
+`data/uiresources/game/ui/ui.ui` 是带嵌套资源表和原始内容区的二进制 UI 容器，不是 Qt Designer XML。当前解析器 `Core/UiBundleExtractor.cs` 使用严格顺序读取，不扫描字符串猜测文件起点。
+
+- 已验证签名 `0xD34DB33F`、序列化版本 2、根类型 `0x70635A61` / 7 字段；入口字符串包装类型 `0xD0B4291C`，资源记录类型 `0x4EDAE845` / 3 字段，引用包装类型 `0x1BFC72D5`。每条记录包含 UTF-8 路径、资源引用、u64 内容偏移/长度和结束标记。
+- 本次样本有 3,666 条记录：746 条内嵌内容和 2,920 条外部引用。内容区起点 584,435，长度 21,277,174 字节；内嵌范围连续覆盖该内容区。仅提取 SVG/HTML/JS，保留原字节与目录结构；其他运行时区段仍在原始容器中保留，不作反编译。
+- 真实样本输出 728 SVG、13 HTML、5 JavaScript。全部 728 SVG 通过 XML 解析，全部 746 文件与原内嵌字节一致，外层 CRC32 与 TOC 一致。这些数值仅代表本次游戏构建。
+- 先校验所有记录和数据范围，再写出；拒绝路径越界、Windows 特殊路径、重复/文件目录冲突、越界/重叠内容。遇到符号链接或 junction 不沿其写出。未知布局保留原文件，并在外层 manifest 记录原因。
+- `Tests/UiBundleChecks.csproj` 提供无游戏数据的合成测试；可通过 `--game-dir` 追加真实游戏验证。没有 UI 回导、引擎运行兼容性或全版本支持承诺。
+
+## 其他未支持格式
 
 未发现 PBX 样本，不能将 BINPX 视为已知等价格式。HDR/BC6H 等纹理保留完整 DDS，暂不转 PNG。完整纹理与导入限制见 README.md。
