@@ -17,6 +17,7 @@ Windows x64 / .NET 9 WinForms tool for browsing and exporting resources from Con
 功能：
 
 - 浏览、搜索和导出 RTOC/blob 资源；
+- 一键全选搜索结果、清空选择，或无需勾选直接导出全部结果；
 - TEX/DDS/常见图片预览，TEX 导出 DDS/PNG；
 - WEM 导出 WAV；
 - 导出 `ui.ui` 时自动提取内部 SVG、HTML 和 JavaScript，并保留目录结构；
@@ -52,6 +53,18 @@ BINFBX 支持范围请阅读 [FORMAT_RESEARCH.md](FORMAT_RESEARCH.md)。FBX 回�
 
 文件内的外部资源引用没有内嵌内容，会跳过且不生成空文件；未知类型的内嵌资源也不会自动写出。外层 `manifest.csv` 会记录成功提取数量、跳过数量和失败原因。未知或损坏的 `.ui` 布局保留原文件；发生磁盘/权限错误或取消导出时，内部提取可能不完整，解决问题后可重新导出。游戏 `.ui` 是二进制 UI 容器，不是 Qt Designer 的 `.ui` 文件；提取后的 HTML/JavaScript 也可能依赖游戏运行环境。这次功能仅支持提取，不支持 UI 容器重新打包或回导。
 
+### 批量选择与音频导出（v1.4.1）
+
+“导出全部结果”直接导出当前列表中的所有结果，无需逐项勾选；旧版按钮名为 “Export filtered / 导出筛选结果”。新增搜索框下方的“全选结果”和“清空选择”：前者勾选当前筛选结果的全部资源，保留其他筛选/资源包中已有的选择；后者清空所有勾选，包括隐藏项。列表获得焦点时支持 Ctrl+A 全选、Ctrl+Shift+A 清空；搜索框内 Ctrl+A 仍用于选择输入文字。
+
+例如导出 `stream0-generic` 的全部音频：
+
+1. 左侧仅勾选 `stream0-generic`，关闭“只看已选”。
+2. 搜索 `data_pc/audio/media/ *.wem`。
+3. 点击“导出全部结果”，或先“全选结果”再“导出选中”。
+
+受支持的 WEM 会保留原文件并额外生成 `.wem.wav`，失败/空占位文件的原因写入 `manifest.csv`。可将 WAV 加入播放器播放列表连续试听。WAV 批量解码可能耗时且比原始 WEM 占用更多空间；需要时可取消。数字文件名是资源标识，不能据此推断剧情播放顺序或曲名。音乐可能分为多个循环、分轨和过渡，命名的 `data_pc/audio/banks/` 音乐 bank 可作研究线索；工具尚不支持将 bank 自动映射到曲名或播放列表。
+
 ### 命令行
 
 ```powershell
@@ -66,6 +79,7 @@ BINFBX 支持范围请阅读 [FORMAT_RESEARCH.md](FORMAT_RESEARCH.md)。FBX 回�
 ```powershell
 dotnet build -c Release
 dotnet run --project Tests/UiBundleChecks.csproj -c Release
+dotnet run --project Tests/UiBundleChecks.csproj -c Release -- --selection
 dotnet publish -c Release -r win-x64 --self-contained true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
   -p:DebugType=None -p:DebugSymbols=false -o publish
@@ -82,6 +96,18 @@ UI 解包测试使用合成数据，无需游戏文件。可在测试命令后�
 Control Resonant Resource Unpacker is a Windows x64 / .NET 9 WinForms tool for browsing and exporting resources from Control: Resonant Edition archives. It does not load a default directory on startup; select a game directory containing `data_pack2/pc`.
 
 Features include archive browsing and search, TEX/DDS/image preview, TEX export, WEM-to-WAV export, validated TTF/TEX/static-BINFBX replacement imports, static BINFBX geometry preview, restricted FBX round-trip editing, and development MOD packaging outside the game directory. The release executable is self-contained and includes `app.ico`.
+
+### Bulk selection and audio export (v1.4.1)
+
+**Export all results** exports every row in the current results without checking files individually. In older releases this button is called **Export filtered**. New **Select all** and **Clear selection** buttons are below the search box. Select all checks every filtered result, including offscreen rows, and preserves selections from other filters/packs. Clear selection removes all checks, including hidden ones. With focus in the list, Ctrl+A checks all results and Ctrl+Shift+A clears all checks. Ctrl+A in the search box still selects the search text.
+
+To export all audio from `stream0-generic`:
+
+1. Check only `stream0-generic` in Packs and turn **Selected only** off.
+2. Search for `data_pc/audio/media/ *.wem`.
+3. Click **Export all results**, or **Select all** followed by **Export selected**.
+
+Supported WEM files are kept and additionally decoded to `.wem.wav`. Empty placeholders and conversion failures are reported in `manifest.csv`. Add the WAV files to a player playlist to audition them consecutively. Large WAV exports take time and can use substantially more space than WEM files; cancellation remains available. Numeric filenames identify resources and do not establish song titles or story/playback order. Music may use multiple loops, stems and transitions; named music banks under `data_pc/audio/banks/` can provide research leads, but automatic bank-to-title/playlist mapping is not supported.
 
 ### UI icons, HTML and JavaScript (v1.4.0)
 
@@ -104,7 +130,7 @@ External references contain no embedded bytes and are skipped without creating e
 
 ### Build and checks
 
-On Windows with the .NET 9 SDK, run `dotnet build -c Release` and `dotnet run --project Tests/UiBundleChecks.csproj -c Release`. Tests use synthetic fixtures and do not require game assets. To additionally check a locally installed game, append `-- --game-dir "<game-directory>"` to the test command. Source build/publish commands are shown in the Chinese section above.
+On Windows with the .NET 9 SDK, run `dotnet build -c Release` and `dotnet run --project Tests/UiBundleChecks.csproj -c Release`. Run bulk-selection checks with `dotnet run --project Tests/UiBundleChecks.csproj -c Release -- --selection`. Tests use synthetic fixtures and do not require game assets. To additionally check a locally installed game, pass `--game-dir "<game-directory>"` after the `--` separator. Source build/publish commands are shown in the Chinese section above.
 
 See [FORMAT_RESEARCH.md](FORMAT_RESEARCH.md) for the BINFBX support boundary. FBX re-import is intentionally conservative: preserve mesh names, topology, material slots and UV layers; whole-model translation, positive uniform scale and whole-layer UV transforms are supported. Skeletons, skinning, blend shapes, animation, local deformation and topology rebuild are not implemented. Offline validation does not guarantee in-game compatibility.
 

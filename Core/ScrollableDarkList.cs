@@ -62,7 +62,8 @@ public sealed class ScrollableDarkList : Control
         SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
         base.OnMouseDown(e);
     }
-    protected override bool IsInputKey(Keys keyData) => (keyData & Keys.KeyCode) is Keys.Up or Keys.Down or Keys.Left or Keys.Right or Keys.Home or Keys.End or Keys.PageUp or Keys.PageDown || base.IsInputKey(keyData);
+    protected override bool IsInputKey(Keys keyData) => ((keyData & Keys.Control) != 0 && (keyData & Keys.KeyCode) == Keys.A) ||
+        (keyData & Keys.KeyCode) is Keys.Up or Keys.Down or Keys.Left or Keys.Right or Keys.Home or Keys.End or Keys.PageUp or Keys.PageDown || base.IsInputKey(keyData);
     protected override void OnKeyDown(KeyEventArgs e)
     {
         int target = SelectedIndices.Count > 0 ? SelectedIndices[0] : _top;

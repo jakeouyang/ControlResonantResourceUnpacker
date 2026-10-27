@@ -22,7 +22,7 @@ public sealed partial class MainForm : Form
     Label _status, _dirLabel, _packLabel, _searchLabel;
     Panel _header;
     Panel header => _header;
-    TextButton _browseBtn, _exportSelBtn, _exportAllBtn, _langBtn, _githubBtn, _closeBtn;
+    TextButton _browseBtn, _exportSelBtn, _exportAllBtn, _langBtn, _githubBtn, _closeBtn, _selectAllBtn, _clearSelectionBtn;
     SimpleScrollBar _vbar, _hbar, _packBar;
     Panel _dirUnderline, _searchUnderline;
     ToolTip _pathTip;
@@ -237,6 +237,11 @@ public sealed partial class MainForm : Form
         _list.MouseDoubleClick += (s, e) => PreviewSelected();
         _list.KeyDown += (s, e) =>
         {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                if (e.Shift) ClearSelection(); else SelectAllResults();
+                e.Handled = true; e.SuppressKeyPress = true; return;
+            }
             if (e.KeyCode == Keys.Enter) { e.Handled = true; PreviewSelected(); }
             if (e.KeyCode == Keys.Space && _list.SelectedIndices.Count > 0)
             {
@@ -290,7 +295,15 @@ public sealed partial class MainForm : Form
         listHost.Controls.Add(_list);
         listHost.Controls.Add(_vbar);
         listHost.Controls.Add(_hbar);
+        var selectionBar = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            BackColor = CfgPanel2, Padding = new Padding(0, 4, 0, 4), Margin = new Padding(0) };
+        _selectAllBtn = new TextButton { Text = L.SelectAll, Font = new Font("Segoe UI", 10.5f), BackColor = CfgPanel2, Margin = new Padding(0, 0, 16, 0) };
+        _clearSelectionBtn = new TextButton { Text = L.ClearSelection, Font = new Font("Segoe UI", 10.5f), BackColor = CfgPanel2 };
+        _selectAllBtn.Click += (s, e) => SelectAllResults();
+        _clearSelectionBtn.Click += (s, e) => ClearSelection();
+        selectionBar.Controls.Add(_selectAllBtn); selectionBar.Controls.Add(_clearSelectionBtn);
         rightPanel.Controls.Add(listHost);
+        rightPanel.Controls.Add(selectionBar);
         rightPanel.Controls.Add(searchHost);
 
         // buttons row (right aligned)
@@ -399,6 +412,11 @@ public sealed partial class MainForm : Form
         _searchBox.PlaceholderText = L.Search;
         _exportSelBtn.Text = L.ExportSel;
         _exportAllBtn.Text = L.ExportFiltered;
+        _selectAllBtn.Text = L.SelectAll;
+        _clearSelectionBtn.Text = L.ClearSelection;
+        _pathTip.SetToolTip(_selectAllBtn, L.SelectAllHint);
+        _pathTip.SetToolTip(_clearSelectionBtn, L.ClearSelectionHint);
+        _pathTip.SetToolTip(_exportAllBtn, L.ExportResultsHint);
         _langBtn.Text = L.En ? "中文" : "English";
         _list.Columns[0].Text = L.ColPath;
         _list.Columns[1].Text = L.ColSize;
@@ -496,22 +514,35 @@ public sealed partial class MainForm : Form
         RefreshSelectionStatus();
     }
 
+    void SelectAllResults()
+    {
+        if (_isBusy) return;
+        foreach (var entry in _filtered) _selected[entry.Key] = true;
+        _list.Invalidate(); RefreshSelectionStatus();
+    }
+
+    void ClearSelection()
+    {
+        if (_isBusy) return;
+        _selected.Clear();
+        if (_showSelectedOnly) Refilter();
+        else { _list.Invalidate(); RefreshSelectionStatus(); }
+    }
+
+    void UpdateSelectionButtons()
+    {
+        if (_selectAllBtn != null) _selectAllBtn.Enabled = !_isBusy && _filtered.Count > 0;
+        if (_clearSelectionBtn != null) _clearSelectionBtn.Enabled = !_isBusy && _selected.Count > 0;
+    }
+
+    List<ResourceEntry> ExportItems(bool selectedOnly) => selectedOnly
+        ? _tocs.SelectMany(t => t.Entries).Where(e => _selected.ContainsKey(e.Key)).ToList()
+        : _filtered.ToList();
+
     async void Export(bool selectedOnly)
     {
-        List<ResourceEntry> items;
-        if (selectedOnly)
-        {
-            items = new List<ResourceEntry>();
-            foreach (var tf in _tocs)
-                foreach (var e in tf.Entries)
-                    if (_selected.ContainsKey(e.Key)) items.Add(e);
-            if (items.Count == 0)
-            {
-                MessageBox.Show(this, L.NothingMatch, L.Title);
-                return;
-            }
-        }
-        else items = _filtered;
+        if (_isBusy) return;
+        var items = ExportItems(selectedOnly);
 
         if (items.Count == 0) { MessageBox.Show(this, L.NothingMatch, L.Title); return; }
         long bytes = items.Sum(e => e.Size);
@@ -636,6 +667,7 @@ public sealed partial class MainForm : Form
     void SetBusy(bool busy, string msg)
     {
         _isBusy = busy;
+        UpdateSelectionButtons();
         _showSelBtn.Text = busy ? (L.En ? "Cancel" : "取消") : L.ShowSel;
         _browseBtn.Enabled = _langBtn.Enabled = !busy;
         _exportSelBtn.Enabled = _exportAllBtn.Enabled = !busy;

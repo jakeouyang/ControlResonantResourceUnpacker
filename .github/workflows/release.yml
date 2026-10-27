@@ -35,6 +35,9 @@ jobs:
       - name: Test UI bundle extraction
         shell: pwsh
         run: dotnet run --project Tests/UiBundleChecks.csproj -c Release
+      - name: Test bulk selection
+        shell: pwsh
+        run: dotnet run --project Tests/UiBundleChecks.csproj -c Release -- --selection
       - name: Publish single-file executable
         shell: pwsh
         run: dotnet publish RmdblobUnpacker.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o publish
@@ -42,11 +45,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag || github.ref_name }}
-          body_path: RELEASE_NOTES_v1.4.0.md
+          body_path: RELEASE_NOTES_v1.4.1.md
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: |
             publish/RmdblobUnpacker.exe
             README.md
-            RELEASE_NOTES_v1.4.0.md
+            RELEASE_NOTES_v1.4.1.md
             THIRD-PARTY-NOTICES.txt

@@ -20,7 +20,12 @@ public static class L
     public static string TypeLz4        => P("LZ4", "LZ4");
     public static string TypeEngine     => P("引擎专用", "Engine");
     public static string ExportSel      => P("导出选中", "Export selected");
-    public static string ExportFiltered => P("导出筛选结果", "Export filtered");
+    public static string ExportFiltered => P("导出全部结果", "Export all results");
+    public static string SelectAll      => P("全选结果", "Select all");
+    public static string ClearSelection => P("清空选择", "Clear selection");
+    public static string SelectAllHint  => P("勾选当前搜索结果中的全部资源（列表内 Ctrl+A）", "Check every resource in the current results (Ctrl+A in the list).");
+    public static string ClearSelectionHint => P("清空所有资源的勾选（列表内 Ctrl+Shift+A）", "Clear all checked resources, including hidden selections (Ctrl+Shift+A in the list).");
+    public static string ExportResultsHint => P("导出当前列表的全部结果，无需逐项勾选。", "Export every resource in the current results; no selection required.");
     public static string Cancel         => P("取消", "Cancel");
     public static string Ready          => P("就绪", "Ready");
     public static string Scanning       => P("正在解析资源包 ...", "Parsing packs ...");
@@ -37,7 +42,7 @@ public static class L
     public static string ShowSel        => P("只看已选", "Selected only");
     public static string LangToggle     => P("English", "中文");
     public static string Manifest       => P("已生成清单 manifest.csv", "manifest.csv written");
-    public static string RawSuffixNote  => P("纹理额外导出 DDS；支持的纹理同时导出 PNG。详见 manifest.csv。", "Textures include DDS and supported PNG conversions. See manifest.csv.");
+    public static string RawSuffixNote  => P("纹理附带 DDS/支持的 PNG；支持的 WEM 附带 WAV。详见 manifest.csv。", "Textures include DDS/supported PNG; supported WEM files include WAV. See manifest.csv.");
     public static string ConfirmExportMany(int n, long bytes) =>
         P($"共 {n} 条资源，约 {FmtSize(bytes)}，确定导出？", $"Export {n} entries, approx {FmtSize(bytes)}?");
     public static string Deleted        => P("[引擎压缩-原始导出]", "[engine-compressed-raw]");

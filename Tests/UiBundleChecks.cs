@@ -63,8 +63,10 @@ static class UiBundleChecks
             Chunks = new[] { new ChunkDesc { Flags = (ushort)(raw ? 0x11 : 0), CompSize = data.Length, UncSize = data.Length } } };
         return ResourceExporter.Write(toc, entry, output);
     }
+    [STAThread]
     static void Main(string[] args)
     {
+        if (args.Contains("--selection")) { BulkSelectionChecks.Run(args); return; }
         root = Path.Combine(Path.GetTempPath(), "ResonantUiChecks-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
         try
         {

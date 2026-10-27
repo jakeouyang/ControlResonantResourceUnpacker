@@ -41,6 +41,7 @@ public sealed partial class MainForm
     }
     void RefreshSelectionStatus()
     {
+        UpdateSelectionButtons();
         if(_status==null)return;
         if(_modReview) _status.Text=L.En?$"{_replacements.Count} modified files — click PACK MOD to package all changes":$"修改清单：{_replacements.Count} 个文件，再次点击“生成 MOD”打包全部修改";
         else if(_tocs.Count==0)_status.Text=L.Ready;
